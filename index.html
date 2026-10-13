@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kasun Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap">
+<!--
+  HOW TO USE YOUR OWN PHOTOS
+  1. Put images in a "photos" folder next to this file.
+  2. In GALLERIES (script at the bottom) set each photo's src, e.g. {src:"photos/street-01.jpg", o:"l"}
+     o: "l" = landscape, "p" = portrait. Photos with an empty src show a sample placeholder.
+  3. Pick the hero and "recent work" images in HERO and RECENT. Edit CONFIG and the about text.
+  Deploy: rename to index.html and push it with the photos folder to GitHub Pages.
+-->
+<style>
+/* Layout: clean white, image-first portfolio. Slim top bar, full-width hero, recent work grid, subject galleries, lightbox. */
+:root{
+  --bg:#FFFFFF; --surface:#F1F1EF; --fg:#111111; --muted:#7C7C78; --line:#E7E7E4; --accent:#111111; --soft:#3D3D3A;
+  --bar:#0C0C0C; --bar-fg:#F2F2F0; --bar-muted:#8C8C88; --bar-line:#262626;
+  --sans:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --gap:clamp(8px,1.2vw,14px);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:400 1rem/1.6 var(--sans);padding-inline:clamp(16px,3vw,40px);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1440px;margin-inline:auto}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
+img{display:block;width:100%;height:auto;background:var(--surface)}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bar);color:var(--bar-fg);display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:18px;margin-inline:calc(-1*clamp(16px,3vw,40px));padding-inline:clamp(16px,3vw,40px)}
+.logo{display:flex;align-items:center;gap:12px}
+.mark{width:34px;height:34px;background:var(--bar-fg);color:var(--bar);display:grid;place-items:center;font:700 1.05rem/1 var(--sans)}
+.word{font:600 .95rem/1 var(--sans);letter-spacing:.02em;color:var(--bar-fg)}
+nav.main{display:flex;gap:26px;font:400 .88rem/1 var(--sans);text-transform:lowercase}
+nav.main a{color:var(--bar-muted);transition:color .2s}
+nav.main a:hover,nav.main a[aria-current="page"]{color:var(--bar-fg)}
+header.top :focus-visible{outline-color:var(--bar-fg)}
+.menu-btn{display:none;background:none;border:1px solid var(--bar-line);color:var(--bar-fg);font:500 .8rem/1 var(--sans);padding:10px 14px;cursor:pointer;text-transform:lowercase}
+@media (max-width:860px){
+  .menu-btn{display:block}
+  nav.main{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:var(--bar);border-bottom:1px solid var(--bar-line);padding:8px clamp(16px,3vw,40px) 16px}
+  nav.main.open{display:flex}
+  nav.main a{padding:13px 0;font-size:1.05rem;border-bottom:1px solid var(--bar-line)}
+}
+
+/* home */
+.hero{position:relative;margin-top:var(--gap);cursor:zoom-in;border:0;padding:0;width:100%;background:none;color:inherit;text-align:left;display:block}
+.hero img{aspect-ratio:21/9;object-fit:cover}
+.hero .cap{position:absolute;left:clamp(16px,3vw,36px);bottom:clamp(16px,3vw,32px);right:16px}
+.hero h1{font:300 clamp(2rem,6vw,4.6rem)/1 var(--sans);letter-spacing:-.03em;margin:0 0 10px;color:#FFFFFF;text-shadow:0 2px 24px rgba(0,0,0,.4)}
+.hero p{margin:0;font:400 .9rem/1.4 var(--sans);color:#E6E6E2;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+@media (max-width:640px){.hero img{aspect-ratio:4/5}}
+
+.block{padding-block:clamp(48px,7vw,96px) 0}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+h2{font:400 1.05rem/1 var(--sans);text-transform:lowercase;letter-spacing:.01em;margin:0}
+.head a{color:var(--muted);font-size:.85rem}
+.head a:hover{color:var(--fg)}
+
+.recent{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:clamp(200px,26vw,400px);gap:var(--gap)}
+.recent .wide{grid-column:span 2}
+.recent img{height:100%;object-fit:cover;transition:opacity .3s}
+.recent button{border:0;padding:0;background:none;cursor:zoom-in;overflow:hidden;min-width:0}
+.recent button:hover img{opacity:.85}
+@media (max-width:760px){.recent{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:clamp(180px,48vw,300px)}}
+
+.subjects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap)}
+.subject{display:grid;gap:12px}
+.subject .img{overflow:hidden;aspect-ratio:3/4}
+.subject img{height:100%;object-fit:cover;transition:transform .6s ease,opacity .3s}
+.subject:hover img{transform:scale(1.03);opacity:.9}
+.subject .t{display:flex;justify-content:space-between;font-size:.92rem;text-transform:lowercase}
+.subject .t span{color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:860px){.subjects{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* gallery page */
+.page-head{padding-block:clamp(40px,6vw,80px) clamp(24px,3vw,36px);display:grid;gap:14px}
+.page-head h1{font:300 clamp(2.4rem,7vw,5rem)/1 var(--sans);letter-spacing:-.03em;margin:0;text-transform:lowercase}
+.page-head p{margin:0;color:var(--muted);max-width:56ch}
+.masonry{columns:3 280px;column-gap:var(--gap)}
+.masonry button{display:block;width:100%;border:0;padding:0;background:none;margin:0 0 var(--gap);break-inside:avoid;cursor:zoom-in;overflow:hidden}
+.masonry img{transition:opacity .3s}
+.masonry button:hover img{opacity:.85}
+.pager{display:flex;justify-content:space-between;gap:16px;padding-block:40px 0;font-size:.9rem;text-transform:lowercase}
+.pager a{color:var(--muted)} .pager a:hover{color:var(--fg)}
+
+/* about / contact */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,5vw,80px);padding-block:clamp(40px,6vw,80px) 0;align-items:start}
+.split .portrait{aspect-ratio:4/5;overflow:hidden}
+.split .portrait img{height:100%;object-fit:cover}
+.split h1{font:300 clamp(2.4rem,7vw,5rem)/1 var(--sans);letter-spacing:-.03em;margin:0 0 28px;text-transform:lowercase}
+.split p{max-width:52ch;margin:0 0 16px;color:var(--soft)}
+dl.facts{display:grid;grid-template-columns:auto 1fr;gap:12px 28px;margin:30px 0 0;padding-top:24px;border-top:1px solid var(--line)}
+dl.facts dt{color:var(--muted);font-size:.85rem;text-transform:lowercase}
+dl.facts dd{margin:0}
+.email{font:300 clamp(1.6rem,4.5vw,2.8rem)/1.15 var(--sans);letter-spacing:-.02em;margin:0 0 20px;user-select:all;overflow-wrap:anywhere}
+.btn{background:var(--fg);color:var(--bg);border:0;padding:13px 20px;font:600 .82rem/1 var(--sans);cursor:pointer;text-transform:lowercase}
+@media (max-width:760px){.split{grid-template-columns:1fr}}
+
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:clamp(56px,8vw,110px);padding-block:26px 34px;border-top:1px solid var(--line);font-size:.8rem;color:var(--muted)}
+footer a:hover{color:var(--fg)}
+.sample{font-size:.75rem;color:var(--muted);margin-top:14px}
+
+/* lightbox */
+#lb{position:fixed;inset:0;z-index:50;background:rgba(255,255,255,.985);display:grid;grid-template-rows:auto 1fr auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 14px)}
+#lb .bar{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:var(--muted);text-transform:lowercase}
+#lb .stage{display:grid;place-items:center;min-height:0;padding-block:12px}
+#lb img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;background:none}
+#lb .nav{display:flex;justify-content:center;gap:10px}
+#lb button{background:none;border:1px solid var(--line);color:var(--fg);font:500 .82rem/1 var(--sans);padding:11px 16px;cursor:pointer;text-transform:lowercase}
+#lb button:hover{border-color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="#home" aria-label="Kasun, home"><span class="mark">K</span><span class="word">Kasun</span></a>
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="nav">menu</button>
+    <nav class="main" id="nav" aria-label="Main"></nav>
+  </header>
+  <main id="view"></main>
+  <footer><span>© <span id="yr"></span> Kasun. All rights reserved.</span><a id="foot-ig" href="#" target="_blank" rel="noopener">instagram</a></footer>
+</div>
+
+<div id="lb" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <div class="bar"><span id="lb-count"></span><button type="button" id="lb-close">close</button></div>
+  <div class="stage"><img id="lb-img" alt=""></div>
+  <div class="nav"><button type="button" id="lb-prev">← prev</button><button type="button" id="lb-next">next →</button></div>
+</div>
+
+<script>
+/* ===== EDIT THESE ===== */
+const CONFIG = { name:"Kasun", city:"Colombo, Sri Lanka", camera:"Fujifilm", email:"your@email.com", instagram:"yourhandle" };
+
+const GALLERIES = [
+  { slug:"street",    title:"street",    blurb:"Colombo on foot. Markets, traffic, rooftops and the people in between.",
+    photos:[{o:"l"},{o:"p"},{o:"l"},{o:"p"},{o:"l"},{o:"l"},{o:"p"},{o:"l"}] },
+  { slug:"travel",    title:"travel",    blurb:"Trains, hill country and the roads around Sri Lanka.",
+    photos:[{o:"l"},{o:"l"},{o:"p"},{o:"l"},{o:"p"},{o:"l"},{o:"l"},{o:"p"}] },
+  { slug:"portraits", title:"portraits", blurb:"Friends, family and people met along the way.",
+    photos:[{o:"p"},{o:"p"},{o:"l"},{o:"p"},{o:"p"},{o:"l"},{o:"p"},{o:"p"}] },
+  { slug:"nature",    title:"nature",    blurb:"Coastline, palms, birds and evening light.",
+    photos:[{o:"l"},{o:"p"},{o:"l"},{o:"l"},{o:"p"},{o:"l"},{o:"p"},{o:"l"}] }
+];
+const HERO = ["travel",0];                                   // [gallery, photo index]
+const RECENT = [["street",0],["portraits",0],["nature",1],["travel",2],["street",3],["portraits",2],["nature",0]];
+/* ====================== */
+
+const TONES = {
+  street:   {sky:["#8FA4AA","#D9C7A2"],ground:"#3E3A33",accent:"#C0623E",dark:"#1F1C18"},
+  travel:   {sky:["#3B6797","#E9A35B"],ground:"#2D4F35",accent:"#F0B35A",dark:"#14201A"},
+  portraits:{sky:["#6E6E6E","#D8D8D8"],ground:"#363636",accent:"#BDBDBD",dark:"#121212"},
+  nature:   {sky:["#6F97A2","#EDC3A1"],ground:"#3F5550",accent:"#E28B6D",dark:"#1D2826"}
+};
+function rng(seed){ let s=seed*9301+49297; return ()=> (s=(s*16807)%2147483647)/2147483647; }
+function paint(cat, portrait, seed){
+  const W=portrait?600:900, H=portrait?800:600, c=document.createElement("canvas"); c.width=W; c.height=H;
+  const x=c.getContext("2d"), r=rng(seed), t=TONES[cat];
+  const g0=x.createLinearGradient(0,0,0,H); g0.addColorStop(0,t.sky[0]); g0.addColorStop(1,t.sky[1]); x.fillStyle=g0; x.fillRect(0,0,W,H);
+  const hz=H*(0.55+r()*0.12);
+  if(cat==="street"){
+    x.fillStyle=t.ground; x.fillRect(0,hz+40,W,H);
+    let bx=-20; while(bx<W){ const bw=50+r()*120, bh=H*.25+r()*H*.4;
+      x.fillStyle=t.dark; x.globalAlpha=.75+r()*.25; x.fillRect(bx,hz+40-bh,bw,bh);
+      x.fillStyle=t.accent; x.globalAlpha=.3;
+      for(let wy=hz+40-bh+14; wy<hz+20; wy+=22) for(let wx=bx+8; wx<bx+bw-10; wx+=18) if(r()>.45) x.fillRect(wx,wy,8,11);
+      bx+=bw+4; }
+    x.globalAlpha=1; const fx=W*(.3+r()*.4); x.fillStyle=t.dark;
+    x.beginPath(); x.arc(fx,hz+70,11,0,7); x.fill(); x.fillRect(fx-10,hz+82,20,58);
+    x.globalAlpha=.35; x.beginPath(); x.ellipse(fx+60,hz+142,70,6,0,0,7); x.fill(); x.globalAlpha=1;
+  } else if(cat==="travel"){
+    x.fillStyle=t.accent; x.globalAlpha=.85; x.beginPath(); x.arc(W*(.2+r()*.6),hz-60-r()*60,34+r()*20,0,7); x.fill(); x.globalAlpha=1;
+    [t.ground,t.dark].forEach((col,k)=>{ x.fillStyle=col; x.globalAlpha=k?1:.7; x.beginPath(); x.moveTo(0,H);
+      let y=hz-80+k*50; for(let px=0; px<=W; px+=24){ y+=(r()-.5)*38; x.lineTo(px,Math.min(y,hz+20+k*40)); } x.lineTo(W,H); x.fill(); });
+    x.globalAlpha=1;
+  } else if(cat==="portraits"){
+    const g=x.createRadialGradient(W*.6,H*.35,20,W*.5,H*.5,Math.max(W,H)*.7); g.addColorStop(0,t.sky[1]); g.addColorStop(1,t.ground);
+    x.fillStyle=g; x.fillRect(0,0,W,H);
+    for(let k=0;k<14;k++){ x.fillStyle=t.accent; x.globalAlpha=.1+r()*.18; x.beginPath(); x.arc(r()*W,r()*H*.7,12+r()*40,0,7); x.fill(); }
+    x.globalAlpha=1; const cx=W*(.38+r()*.24), s=Math.min(W,H)/480; x.fillStyle=t.dark;
+    x.beginPath(); x.ellipse(cx,H*.42,62*s,78*s,0,0,7); x.fill();
+    x.beginPath(); x.moveTo(cx-170*s,H); x.bezierCurveTo(cx-150*s,H*.62,cx+150*s,H*.62,cx+170*s,H); x.fill();
+  } else {
+    x.fillStyle=t.accent; x.globalAlpha=.6; x.beginPath(); x.arc(W*(.3+r()*.4),hz-20,46,0,7); x.fill(); x.globalAlpha=1;
+    x.fillStyle=t.ground; x.fillRect(0,hz,W,H-hz);
+    x.strokeStyle=t.sky[1]; x.globalAlpha=.25; for(let k=0;k<10;k++){ const ly=hz+8+k*12; x.beginPath(); x.moveTo(r()*W*.4,ly); x.lineTo(W*.5+r()*W*.5,ly); x.stroke(); }
+    x.globalAlpha=1; x.strokeStyle=t.dark; const n=portrait?2:3;
+    for(let k=0;k<n;k++){ const bx=W*(.12+k*(.8/n)+r()*.08), top=H*.12+r()*H*.15; x.lineWidth=9;
+      x.beginPath(); x.moveTo(bx,H); x.quadraticCurveTo(bx+30,H*.6,bx+50+r()*30,top); x.stroke();
+      const tx=bx+50+r()*10, ty=top; x.lineWidth=5;
+      for(let f=0;f<8;f++){ const a=f/8*Math.PI*2, L=70+r()*40; x.beginPath(); x.moveTo(tx,ty);
+        x.quadraticCurveTo(tx+Math.cos(a)*L*.6,ty+Math.sin(a)*L*.3-20,tx+Math.cos(a)*L,ty+Math.abs(Math.sin(a))*L*.6+20); x.stroke(); } }
+  }
+  const v=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75); v.addColorStop(0,"rgba(0,0,0,0)"); v.addColorStop(1,"rgba(0,0,0,.4)");
+  x.fillStyle=v; x.fillRect(0,0,W,H);
+  const d=x.getImageData(0,0,W,H), a=d.data, mono=cat==="portraits";
+  for(let k=0;k<a.length;k+=4){ const nz=(Math.random()-.5)*14;
+    if(mono){ const l=a[k]*.3+a[k+1]*.59+a[k+2]*.11+nz; a[k]=a[k+1]=a[k+2]=l; } else { a[k]+=nz; a[k+1]+=nz; a[k+2]+=nz; } }
+  x.putImageData(d,0,0);
+  return c.toDataURL("image/jpeg",.86);
+}
+GALLERIES.forEach((g,gi)=> g.photos.forEach((p,i)=>{ p.url = p.src || paint(g.slug,p.o==="p",gi*40+i+7); }));
+const anySample = GALLERIES.some(g=>g.photos.some(p=>!p.src));
+const G = s => GALLERIES.find(g=>g.slug===s);
+const pick = ([s,i]) => G(s).photos[i];
+
+/* nav */
+const NAV=[["home","home"],["recent","recent work"],...GALLERIES.map(g=>[g.slug,g.title]),["about","about"],["contact","contact"]];
+const navEl=document.getElementById("nav");
+navEl.innerHTML = NAV.map(([k,l])=>`<a href="#${k}" data-route="${k}">${l}</a>`).join("");
+const menuBtn=document.getElementById("menu-btn");
+menuBtn.onclick=()=>{ const o=navEl.classList.toggle("open"); menuBtn.setAttribute("aria-expanded",o); menuBtn.textContent=o?"close":"menu"; };
+document.getElementById("foot-ig").href="https://instagram.com/"+CONFIG.instagram;
+document.getElementById("yr").textContent=new Date().getFullYear();
+
+/* views */
+let LB=[]; // photos available to the lightbox on the current view
+function home(){
+  const h=pick(HERO); const rec=RECENT.map(pick);
+  LB=[h,...rec];
+  return `<button class="hero" type="button" data-lb="0"><img src="${h.url}" alt="Featured photograph">
+      <div class="cap"><h1>${CONFIG.name}</h1><p>Photographer · ${CONFIG.city}</p></div></button>
+    <section class="block"><div class="head"><h2>recent work</h2><a href="#recent">view all →</a></div>
+      <div class="recent">${rec.slice(0,6).map((p,i)=>`<button type="button" class="${i===0||i===5?"wide":""}" data-lb="${i+1}"><img src="${p.url}" alt="Recent photograph ${i+1}" loading="lazy"></button>`).join("")}</div></section>
+    <section class="block"><div class="head"><h2>galleries</h2></div>
+      <div class="subjects">${GALLERIES.map(g=>`<a class="subject" href="#${g.slug}"><div class="img"><img src="${(g.photos.find(p=>p.o==="p")||g.photos[0]).url}" alt="${g.title}" loading="lazy"></div><div class="t">${g.title}<span>${g.photos.length}</span></div></a>`).join("")}</div>
+      ${anySample?`<div class="sample">Sample images shown. Replace them with your own photos.</div>`:""}</section>`;
+}
+function gallery(title, blurb, photos, prev, next){
+  LB=photos;
+  return `<div class="page-head"><h1>${title}</h1>${blurb?`<p>${blurb}</p>`:""}</div>
+    <div class="masonry">${photos.map((p,i)=>`<button type="button" data-lb="${i}"><img src="${p.url}" alt="${title}, photograph ${i+1}" loading="lazy"></button>`).join("")}</div>
+    ${prev?`<div class="pager"><a href="#${prev.slug}">← ${prev.title}</a><a href="#${next.slug}">${next.title} →</a></div>`:""}`;
+}
+function about(){
+  const p=G("portraits").photos[0]; LB=[];
+  return `<div class="split"><div class="portrait"><img src="${p.url}" alt="Portrait"></div><div>
+    <h1>about</h1>
+    <p>I'm ${CONFIG.name}, a photographer based in ${CONFIG.city}. I picked up a ${CONFIG.camera} camera in 2026 and I'm still finding what I like to shoot most: busy streets, places I travel to, the people around me, and good evening light.</p>
+    <p>This site collects the work I'm proudest of so far. It grows as I do.</p>
+    <dl class="facts"><dt>based in</dt><dd>${CONFIG.city}</dd><dt>camera</dt><dd>${CONFIG.camera}</dd>
+      <dt>shooting</dt><dd>${GALLERIES.map(g=>g.title).join(", ")}</dd><dt>available for</dt><dd>Portraits and small events around Colombo</dd></dl></div></div>`;
+}
+function contact(){
+  LB=[];
+  return `<div class="split"><div><h1>contact</h1><p>For portraits, prints or collaborations, send me an email.</p></div><div>
+    <div class="email" id="email">${CONFIG.email}</div>
+    <button class="btn" id="copy" type="button">copy email</button>
+    <dl class="facts"><dt>instagram</dt><dd><a href="https://instagram.com/${CONFIG.instagram}" target="_blank" rel="noopener">@${CONFIG.instagram}</a></dd><dt>based in</dt><dd>${CONFIG.city}</dd></dl></div></div>`;
+}
+function route(){
+  const key=(location.hash||"#home").slice(1)||"home";
+  const v=document.getElementById("view"), i=GALLERIES.findIndex(g=>g.slug===key);
+  if(i>-1){ const g=GALLERIES[i]; v.innerHTML=gallery(g.title,g.blurb,g.photos,GALLERIES[(i-1+GALLERIES.length)%GALLERIES.length],GALLERIES[(i+1)%GALLERIES.length]); }
+  else if(key==="recent") v.innerHTML=gallery("recent work","The latest additions across every gallery.",RECENT.map(pick));
+  else if(key==="about") v.innerHTML=about();
+  else if(key==="contact") v.innerHTML=contact();
+  else v.innerHTML=home();
+  const active = i>-1||["recent","about","contact"].includes(key) ? key : "home";
+  navEl.querySelectorAll("a").forEach(a=> a.dataset.route===active ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
+  navEl.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false"); menuBtn.textContent="menu";
+  window.scrollTo(0,0);
+  const c=document.getElementById("copy");
+  if(c) c.onclick=()=>{ const done=t=>{c.textContent=t; setTimeout(()=>c.textContent="copy email",1600);};
+    const sel=()=>{const s=getSelection(),r=document.createRange(); r.selectNodeContents(document.getElementById("email")); s.removeAllRanges(); s.addRange(r);};
+    try{ navigator.clipboard.writeText(CONFIG.email).then(()=>done("copied"),()=>{sel();done("press ctrl+c");}); }catch(e){ sel(); done("press ctrl+c"); } };
+}
+window.addEventListener("hashchange",route);
+
+/* lightbox */
+const lb=document.getElementById("lb"), lbImg=document.getElementById("lb-img"); let cur=0;
+function show(i){ cur=(i+LB.length)%LB.length; lbImg.src=LB[cur].url; document.getElementById("lb-count").textContent=`${cur+1} / ${LB.length}`; }
+document.addEventListener("click",e=>{ const b=e.target.closest("[data-lb]"); if(!b) return; show(+b.dataset.lb); lb.hidden=false; document.body.style.overflow="hidden"; document.getElementById("lb-close").focus(); });
+function closeLb(){ lb.hidden=true; document.body.style.overflow=""; }
+document.getElementById("lb-close").onclick=closeLb;
+document.getElementById("lb-prev").onclick=()=>show(cur-1);
+document.getElementById("lb-next").onclick=()=>show(cur+1);
+lb.addEventListener("click",e=>{ if(e.target.classList.contains("stage")) closeLb(); });
+document.addEventListener("keydown",e=>{ if(lb.hidden) return; if(e.key==="Escape") closeLb(); if(e.key==="ArrowRight") show(cur+1); if(e.key==="ArrowLeft") show(cur-1); });
+route();
+</script>
+</body>
+</html>
